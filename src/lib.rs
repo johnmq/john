@@ -11,56 +11,83 @@
 //!
 //! It can be used as a standalone library or as a messaging queue server.
 
-/// Struct that represents queue
-pub struct Queue {
-    data: Vec<String>
-}
+use std::io;
 
-impl Queue {
-    /// constructor
-    ///
-    /// Creates empty queue
-    pub fn new() -> Queue {
-        Queue { data: Vec::new() }
-    }
-}
-
-/// Allows you to push messages to the queue
-pub struct PushCommand(());
+/// Push command - stateless
+///
+/// Used to push messages to rivers like this:
+///
+/// ```
+/// john::PushCommand::new().execute("river_name", "message");
+/// ```
+pub struct PushCommand;
 
 impl PushCommand {
-    /// command executor
+    /// Constructor ::new()
     ///
-    /// Pushes a `message` to `queue`
-    pub fn execute(queue: &mut Queue, message: String) {
-        queue.data.push(message);
+    /// Creates new instance of PushCommand
+    pub fn new() -> PushCommand {
+        PushCommand
+    }
+
+    /// Used to execute push command, specifying a river name and message
+    /// This can be called multiple times with different arguments
+    /// since PushCommand is stateless
+    pub fn execute(&self, river: &str, message: &str) {
+        println!("pushing message '{}' to river '{}'", river, message);
+        let path = Path::new(format!("./tmp/rivers/{}", river));
+        io::File::open_mode(&path, io::Append, io::Write).write_line(message);
     }
 }
 
-/// Allows you to pop messages from the queue
-pub struct PopCommand(());
-
-impl PopCommand {
-    /// command executor
-    ///
-    /// Pushes a `message` to `queue`
-    pub fn execute(queue: &mut Queue) -> Option<String> {
-        queue.data.pop()
-    }
+/// Result of PeekCommand, when it was successful
+/// Contains message and new offset to specify to peek command
+/// for continuous peeking
+pub struct PeekResult {
+    /// Contains message
+    pub message: String,
+    /// Contains next offset to be specified to read next message from river
+    pub offset: uint
 }
 
-/// Allows you to peek at message at the top of the queue without popping it
-pub struct PeekCommand(());
+/// Peek command - stateless
+///
+/// Used to peek messages from rivers like this:
+///
+/// ```
+/// // read latest message from river
+/// john::PeekCommand::new().execute("river name", None);
+/// // read message from river at specific offset
+/// john::PeekCommand::new().execute("river name", Some(7));
+/// ```
+///
+/// It returns Option < PeekResult >. When it was able to peek a message, the result will contain
+/// peeked message and new offset to specify to peek command (if you want to get next message)
+pub struct PeekCommand;
 
 impl PeekCommand {
-    /// command executor
+    /// Constructor ::new()
     ///
-    /// Pushes a `message` to `queue`
-    pub fn execute(queue: &Queue) -> Option<String> {
-        let res = queue.data.iter().next();
-        match res {
-            Some(result) => Some(result.clone()),
-            _ => None
+    /// Creates new instance of PeekCommand
+    pub fn new() -> PeekCommand {
+        PeekCommand
+    }
+
+    /// Used to execute peek command, specifying a river name and optionally offset to peek at
+    pub fn execute(&self, river: &str, offset: Option < uint >) -> PeekResult {
+        println!("peeking in river {}", river);
+        let path = Path::new(format!("./tmp/rivers/{}", river));
+        let file = io::BufferedReader::new(io::File::open(&path));
+        match offset {
+            Some(offset) => PeekResult { message: file.lines()[offset].to_string(), offset: offset + 1 },
+            None => PeekResult { message: "hello world".to_string(), offset: 0 }
+        }
+    }
+
+    fn read_by_offset(file: io::BufferedReader < io::File >, offset: uint) -> Option < String > {
+        match file.lines().take(offset).last() {
+            Ok(message) => Some(message.unwrap()),
+            Err => None
         }
     }
 }

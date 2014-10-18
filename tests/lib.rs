@@ -1,61 +1,28 @@
 extern crate john;
 
-use john::{Queue, PushCommand, PopCommand, PeekCommand};
+use john::{PushCommand, PeekCommand, PeekResult};
 
 #[test]
-fn test_push_and_pop() {
-    let mut queue = Queue::new();
-
-    let value = "hello world";
-
-    PushCommand::execute(&mut queue, value.to_string());
-
-    let popped = PopCommand::execute(&mut queue);
-
-    match popped {
-        Some(result) => assert_eq!(value, result.as_slice()),
-        None => assert!(false)
+fn pushing_and_peeking_a_message() {
+    PushCommand::new().execute("a river", "hello world");
+    let result = PeekCommand::new().execute("a river", None);
+    match result {
+        PeekResult { message, offset } => {
+            assert_eq!("hello world", message.as_slice());
+            assert_eq!(1, offset);
+        }
     }
 }
 
 #[test]
-fn test_multiple_pushes_and_pops() {
-    let mut queue = Queue::new();
-
-    let value_1 = "hello world";
-    let value_2 = "bye bye world";
-
-    PushCommand::execute(&mut queue, value_1.to_string());
-    PushCommand::execute(&mut queue, value_2.to_string());
-
-    let popped_1 = PopCommand::execute(&mut queue);
-    let popped_2 = PopCommand::execute(&mut queue);
-
-    match (popped_1, popped_2) {
-        (Some(result_1), Some(result_2)) => {
-            assert_eq!(value_1, result_2.as_slice());
-            assert_eq!(value_2, result_1.as_slice());
+fn peeking_a_message_without_offset() {
+    PushCommand::new().execute("a river", "message 1");
+    PushCommand::new().execute("a river", "message 2");
+    let result = PeekCommand::new().execute("a river", None);
+    match result {
+        PeekResult { message, offset } => {
+            assert_eq!("message 2", message.as_slice());
+            assert_eq!(2, offset);
         }
-        _ => assert!(false)
-    }
-}
-
-#[test]
-fn test_peek() {
-    let mut queue = Queue::new();
-
-    let value = "hello world";
-
-    PushCommand::execute(&mut queue, value.to_string());
-
-    let peeked = PeekCommand::execute(&queue);
-    let popped = PopCommand::execute(&mut queue);
-
-    match (peeked, popped) {
-        (Some(result_1), Some(result_2)) => {
-            assert_eq!(value, result_1.as_slice());
-            assert_eq!(value, result_2.as_slice());
-        }
-        _ => assert!(false)
     }
 }
