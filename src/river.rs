@@ -204,10 +204,4 @@ impl River {
     fn error(&self, message: &str, err: &std::fmt::Show) {
         ()
     }
-
-    #[allow(dead_code)]
-    #[allow(unused_variables)]
-    fn debug(&self, message: &std::fmt::Show) {
-        ()
-    }
 }
