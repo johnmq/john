@@ -72,10 +72,7 @@ impl PeekCommand {
 
     /// Used to execute peek command, specifying a river name and optionally offset to peek at
     pub fn execute(&self, river: &str, offset: Option < uint >) -> Option < PeekResult > {
-        match offset {
-            Some(offset) => River::new(river).peek_at(offset),
-            None => River::new(river).peek()
-        }
+        River::new(river).peek_at(offset)
     }
 }
 
