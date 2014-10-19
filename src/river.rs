@@ -64,18 +64,9 @@ impl River {
         }
     }
 
-    pub fn peek(&self) -> Option < PeekResult > {
-        match self.get_line(None) {
-            Some((offset, message)) => self.form_peek_result(message, offset, None),
-            _ => None
-        }
-    }
-
-    pub fn peek_at(&self, offset: uint) -> Option < PeekResult > {
-        match self.get_line(Some(offset)) {
-            Some((actual_offset, message)) => {
-                self.form_peek_result(message, actual_offset, Some(offset))
-            }
+    pub fn peek_at(&self, offset: Option < uint >) -> Option < PeekResult > {
+        match self.get_line(offset) {
+            Some((actual_offset, message)) => self.form_peek_result(message, actual_offset, offset),
             _ => None
         }
     }
