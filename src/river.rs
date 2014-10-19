@@ -107,17 +107,7 @@ impl River {
 
     fn get_file_for_append(&self) -> io::IoResult < io::File > {
         self.create_unless_exists();
-        let mut file = io::File::open_mode(&self.path, io::Append, io::Write);
-
-        let size = match self.path.stat() {
-            Ok(stat) => (stat.size.to_uint().unwrap() + MESSAGE_SIZE - 1) / MESSAGE_SIZE,
-            Err(err) => { self.error("unable to get size of river", &err); 0 }
-        };
-
-        match file.seek((size * MESSAGE_SIZE).to_i64().unwrap(), io::SeekSet) {
-            Ok(()) => file,
-            Err(err) => Err(err)
-        }
+        io::File::open_mode(&self.path, io::Append, io::Write)
     }
 
     fn get_file_for_peek(&self) -> io::IoResult < io::File > {
@@ -168,29 +158,5 @@ impl River {
     fn debug(&self, message: &std::fmt::Show) {
         println!("DEBUG: {}", message);
         ()
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use river::River;
-
-    const MESSAGE_SIZE: uint = 4096;
-
-    #[test]
-    fn get_file_for_append_results_in_correct_offset() {
-        let river = River::new("river unit test file for append 1");
-        river.destroy();
-
-        river.push("a message");
-        river.push("a message 2");
-        river.push("a message 3");
-
-        let file = river.get_file_for_append();
-
-        match file.tell() {
-            Ok(size) => assert_eq!(MESSAGE_SIZE * 3, size.to_uint().unwrap()),
-            _ => assert!(false)
-        }
     }
 }
