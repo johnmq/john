@@ -48,12 +48,10 @@ impl River {
     pub fn push(&self, message: &str) {
         let mut file = self.get_file_for_append();
         let bytes = message.as_bytes();
-        let mut abundant_bytes: Vec < u8 > = range(0, MESSAGE_SIZE - bytes.len()).map(|_| { 0 }).collect();
-        abundant_bytes[0] = '\n' as u8;
 
         match file.write(bytes) {
             Ok(_) => {
-                match file.write(abundant_bytes.as_slice()) {
+                match file.write(self.abundant_bytes(bytes).as_slice()) {
                     Ok(_) => {},
                     Err(err) => self.error("Unable to push message", &err)
                 }
@@ -171,6 +169,11 @@ impl River {
         }
     }
 
+    fn abundant_bytes(&self, bytes: &[u8]) -> Vec < u8 > {
+        let mut abundant_bytes: Vec < u8 > = range(0, MESSAGE_SIZE - bytes.len()).map(|_| { 0 }).collect();
+        abundant_bytes[0] = '\n' as u8;
+        abundant_bytes
+    }
 
     #[allow(unused_variables)]
     fn error(&self, message: &str, err: &std::fmt::Show) {
