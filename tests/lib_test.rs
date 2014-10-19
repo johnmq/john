@@ -191,6 +191,24 @@ fn continuous_push_to_river_teardown(b: &mut test::Bencher) {
 }
 
 #[bench]
+fn full_river_traverse_with_peek(b: &mut test::Bencher) {
+    let push = john::PushCommand::new();
+    let peek = john::PeekCommand::new();
+    let clear = john::ClearCommand::new();
+
+    clear.execute("a river for full traverse bench");
+    for _ in range(0, RIVER_SIZE) {
+        push.execute("a river for full traverse bench", "a huge message");
+    }
+
+    b.iter(|| {
+        for offset in range(1, RIVER_SIZE + 1) {
+            peek.execute("a river for full traverse bench", Some(offset.to_uint().unwrap()));
+        }
+    })
+}
+
+#[bench]
 fn simple_push_to_empty_river(b: &mut test::Bencher) {
     let clear = john::ClearCommand::new();
     let push = john::PushCommand::new();
