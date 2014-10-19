@@ -5,13 +5,17 @@
 #![deny(missing_doc)]
 #![deny(warnings)]
 
+#![feature(phase)]
 //! The main crate of the John Messaging Queue.
 //!
 //! John is a dead simple messaging queue for Rust.
 //!
 //! It can be used as a standalone library or as a messaging queue server.
 
-use std::io;
+use river::River;
+pub use river::PeekResult;
+
+mod river;
 
 /// Push command - stateless
 ///
@@ -34,20 +38,8 @@ impl PushCommand {
     /// This can be called multiple times with different arguments
     /// since PushCommand is stateless
     pub fn execute(&self, river: &str, message: &str) {
-        println!("pushing message '{}' to river '{}'", river, message);
-        let path = Path::new(format!("./tmp/rivers/{}", river));
-        io::File::open_mode(&path, io::Append, io::Write).write_line(message);
+        River::new(river).push(message);
     }
-}
-
-/// Result of PeekCommand, when it was successful
-/// Contains message and new offset to specify to peek command
-/// for continuous peeking
-pub struct PeekResult {
-    /// Contains message
-    pub message: String,
-    /// Contains next offset to be specified to read next message from river
-    pub offset: uint
 }
 
 /// Peek command - stateless
@@ -56,9 +48,14 @@ pub struct PeekResult {
 ///
 /// ```
 /// // read latest message from river
+/// john::PushCommand::new().execute("river name", "a message");
+/// john::PushCommand::new().execute("river name", "a message 1");
+/// john::PushCommand::new().execute("river name", "a message 2");
+/// john::PushCommand::new().execute("river name", "a message 3");
 /// john::PeekCommand::new().execute("river name", None);
+///
 /// // read message from river at specific offset
-/// john::PeekCommand::new().execute("river name", Some(7));
+/// john::PeekCommand::new().execute("river name", Some(2));
 /// ```
 ///
 /// It returns Option < PeekResult >. When it was able to peek a message, the result will contain
@@ -74,20 +71,35 @@ impl PeekCommand {
     }
 
     /// Used to execute peek command, specifying a river name and optionally offset to peek at
-    pub fn execute(&self, river: &str, offset: Option < uint >) -> PeekResult {
-        println!("peeking in river {}", river);
-        let path = Path::new(format!("./tmp/rivers/{}", river));
-        let file = io::BufferedReader::new(io::File::open(&path));
+    pub fn execute(&self, river: &str, offset: Option < uint >) -> Option < PeekResult > {
         match offset {
-            Some(offset) => PeekResult { message: file.lines()[offset].to_string(), offset: offset + 1 },
-            None => PeekResult { message: "hello world".to_string(), offset: 0 }
+            Some(offset) => River::new(river).peek_at(offset),
+            None => River::new(river).peek()
         }
     }
+}
 
-    fn read_by_offset(file: io::BufferedReader < io::File >, offset: uint) -> Option < String > {
-        match file.lines().take(offset).last() {
-            Ok(message) => Some(message.unwrap()),
-            Err => None
-        }
+/// Clear command - stateless
+///
+/// Used to clear messages from rivers like this:
+///
+/// ```
+/// john::ClearCommand::new().execute("river_name");
+/// ```
+pub struct ClearCommand;
+
+impl ClearCommand {
+    /// Constructor ::new()
+    ///
+    /// Creates new instance of ClearCommand
+    pub fn new() -> ClearCommand {
+        ClearCommand
+    }
+
+    /// Used to execute push command, specifying a river name and message
+    /// This can be called multiple times with different arguments
+    /// since PushCommand is stateless
+    pub fn execute(&self, river: &str) {
+        River::new(river).destroy();
     }
 }
