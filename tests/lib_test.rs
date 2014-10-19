@@ -3,6 +3,8 @@ extern crate test;
 
 use john::{PushCommand, PeekCommand, PeekResult, ClearCommand};
 
+const RIVER_SIZE: int = 100i;
+
 #[test]
 fn pushing_and_peeking_a_message() {
     ClearCommand::new().execute("a river");
@@ -100,12 +102,12 @@ fn clearing_an_empty_river(b: &mut test::Bencher) {
 }
 
 #[bench]
-fn clearing_an_river_with_some_messages(b: &mut test::Bencher) {
+fn clearing_a_river_with_some_messages(b: &mut test::Bencher) {
     let clear = john::ClearCommand::new();
     let push = john::PushCommand::new();
 
     clear.execute("a river with some messages");
-    for _ in range(0i, 3000i) {
+    for _ in range(0i, RIVER_SIZE) {
         push.execute("a river with some messages", "a huge message");
     }
 
@@ -134,7 +136,7 @@ fn peeking_last_message_from_river_with_some_messages(b: &mut test::Bencher) {
     let peek = john::PeekCommand::new();
 
     clear.execute("another river with some messages");
-    for _ in range(0i, 3000i) {
+    for _ in range(0i, RIVER_SIZE) {
         push.execute("another river with some messages", "a huge message");
     }
 
@@ -163,7 +165,7 @@ fn peeking_some_message_from_river_with_some_messages(b: &mut test::Bencher) {
     let peek = john::PeekCommand::new();
 
     clear.execute("another river with some messages v2");
-    for _ in range(0i, 3000i) {
+    for _ in range(0i, RIVER_SIZE) {
         push.execute("another river with some messages v2", "a huge message");
     }
 
@@ -185,5 +187,17 @@ fn continuous_push_to_river(b: &mut test::Bencher) {
 fn continuous_push_to_river_teardown(b: &mut test::Bencher) {
     b.iter(|| {
         john::ClearCommand::new().execute("river for continuous push");
+    })
+}
+
+#[bench]
+fn simple_push_to_empty_river(b: &mut test::Bencher) {
+    let clear = john::ClearCommand::new();
+    let push = john::PushCommand::new();
+
+    clear.execute("a river for simple push bench");
+
+    b.iter(|| {
+        push.execute("a river for simple push bench", "a huge message");
     })
 }
