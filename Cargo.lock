@@ -2,8 +2,17 @@
 name = "john"
 version = "0.0.1"
 dependencies = [
+ "bodyparser 0.1.0 (git+https://github.com/iron/body-parser.git#ad499cf89654731c672aa81084a4de3f23a41aac)",
  "iron 0.0.1 (git+https://github.com/iron/iron.git#f7edddd634b97d3150d92db88911472f27d95493)",
  "router 0.1.0 (git+https://github.com/iron/router.git#d6ca2afc0e71ad69ca6ad50303f05cea99759cd1)",
+]
+
+[[package]]
+name = "bodyparser"
+version = "0.1.0"
+source = "git+https://github.com/iron/body-parser.git#ad499cf89654731c672aa81084a4de3f23a41aac"
+dependencies = [
+ "iron 0.0.1 (git+https://github.com/iron/iron.git#f7edddd634b97d3150d92db88911472f27d95493)",
 ]
 
 [[package]]

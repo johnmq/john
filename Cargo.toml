@@ -11,3 +11,7 @@ git = "https://github.com/iron/iron.git"
 [dependencies.router]
 
 git = "https://github.com/iron/router.git"
+
+[dependencies.bodyparser]
+
+git = "https://github.com/iron/body-parser.git"
