@@ -14,8 +14,10 @@
 
 use river::River;
 pub use river::PeekResult;
+pub use server::Server;
 
 mod river;
+mod server;
 
 /// Push command - stateless
 ///

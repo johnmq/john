@@ -1,4 +1,6 @@
+extern crate john;
+
 #[cfg(not(test))]
 fn main() {
-    println!("Hello, world!")
+    john::Server::new(3100).start()
 }

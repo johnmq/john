@@ -1,4 +1,3 @@
-#[phase(plugin, link)] extern crate log;
 extern crate std;
 
 use std::io;
