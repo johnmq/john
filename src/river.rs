@@ -110,20 +110,8 @@ impl River {
     fn read_line(&self, file: &mut io::IoResult < io::File >) -> Option < String > {
         let mut buf: Vec < u8 > = vec![];
 
-        loop {
-            match file.read_byte() {
-                Ok(LINE_END) => break,
-                Ok(byte) => {
-                    buf.push(byte);
-                },
-                _ => break
-            }
-        }
-
-        match str::from_utf8(buf.as_slice()) {
-            Some(string) => Some(string.to_string()),
-            _ => None
-        }
+        self.read_to_buf_until_eol(file, &mut buf);
+        self.convert_buf_to_string(buf)
     }
 
     fn are_offsets_match(&self, actual_offset: uint, offset: Option < uint >) -> bool {
@@ -186,6 +174,32 @@ impl River {
         }
     }
 
+    fn read_to_buf_until_eol(&self, file: &mut io::IoResult < io::File >, buf: &mut Vec < u8 >) {
+        loop {
+            if ! self.read_one_byte_to_buf(file, buf) {
+                break
+            }
+        }
+    }
+
+    fn read_one_byte_to_buf(&self, file: &mut io::IoResult < io::File >, buf: &mut Vec < u8 >) -> bool {
+        match file.read_byte() {
+            Ok(LINE_END) => false,
+            Ok(byte) => {
+                buf.push(byte);
+                true
+            },
+            _ => false
+        }
+    }
+
+    fn convert_buf_to_string(&self, buf: Vec < u8 >) -> Option < String > {
+        match str::from_utf8(buf.as_slice()) {
+            Some(string) => Some(string.to_string()),
+            _ => None
+        }
+    }
+
     #[allow(unused_variables)]
     fn error(&self, message: &str, err: &std::fmt::Show) {
         ()
@@ -194,7 +208,6 @@ impl River {
     #[allow(dead_code)]
     #[allow(unused_variables)]
     fn debug(&self, message: &std::fmt::Show) {
-        println!("DEBUG: {}", message);
         ()
     }
 }
