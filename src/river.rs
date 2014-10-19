@@ -50,25 +50,17 @@ impl River {
         let bytes = message.as_bytes();
 
         match file.write(bytes) {
-            Ok(_) => {
-                match file.write(self.abundant_bytes(bytes).as_slice()) {
-                    Ok(_) => {},
-                    Err(err) => self.error("Unable to push message", &err)
-                }
-            },
+            Ok(_) => self.write_abundant_bytes(&mut file, bytes.len()),
             Err(err) => self.error("Unable to push message", &err)
         }
     }
 
     pub fn create_unless_exists(&self) {
-        match self.path.exists() {
-            false => {
-                match io::File::create(&self.path) {
-                    Ok(_) => {},
-                    Err(err) => self.error("Unable to create river", &err)
-                }
+        if ! self.path.exists() {
+            match io::File::create(&self.path) {
+                Ok(_) => {},
+                Err(err) => self.error("Unable to create river", &err)
             }
-            _ => {}
         }
     }
 
@@ -118,27 +110,8 @@ impl River {
     fn get_line(&self, offset: Option < uint >) -> Option < (uint, String) > {
         let mut file = self.get_file_for_peek();
 
-        let size = match self.path.stat() {
-            Ok(stat) => (stat.size.to_uint().unwrap() + MESSAGE_SIZE - 1) / MESSAGE_SIZE,
-            Err(err) => { self.error("unable to get size of river", &err); 0 }
-        };
-
-        let adjusted_offset = match offset {
-            Some(offset) => std::cmp::min(size, offset),
-            None => size
-        };
-
-        if adjusted_offset == 0 {
-            return None;
-        }
-
-        let actual_offset = adjusted_offset - 1;
-
-        match file.seek((actual_offset * MESSAGE_SIZE).to_i64().unwrap(), io::SeekSet) {
-            Ok(_) => match self.read_line(&mut file) {
-                Some(string) => Some((actual_offset, string)),
-                _ => None
-            },
+        match self.seek_and_read_line(&mut file, offset) {
+            Some(string) => Some((self.get_actual_offset(offset).unwrap(), string)),
             _ => None
         }
     }
@@ -169,10 +142,57 @@ impl River {
         }
     }
 
-    fn abundant_bytes(&self, bytes: &[u8]) -> Vec < u8 > {
-        let mut abundant_bytes: Vec < u8 > = range(0, MESSAGE_SIZE - bytes.len()).map(|_| { 0 }).collect();
+    fn abundant_bytes(&self, count: uint) -> Vec < u8 > {
+        let mut abundant_bytes: Vec < u8 > = range(0, MESSAGE_SIZE - count).map(|_| { 0 }).collect();
         abundant_bytes[0] = '\n' as u8;
         abundant_bytes
+    }
+
+    fn write_abundant_bytes(&self, file: &mut io::IoResult < io::File >, count: uint) {
+        match file.write(self.abundant_bytes(count).as_slice()) {
+            Ok(_) => {},
+            Err(err) => self.error("Unable to push message", &err)
+        }
+    }
+
+    fn size(&self) -> uint {
+        match self.path.stat() {
+            Ok(stat) => (stat.size.to_uint().unwrap() + MESSAGE_SIZE - 1) / MESSAGE_SIZE,
+            Err(err) => { self.error("unable to get size of river", &err); 0 }
+        }
+    }
+
+    fn get_actual_offset(&self, offset: Option < uint >) -> Option < uint > {
+        let size = self.size();
+        let adjusted_offset = match offset {
+            Some(offset) => std::cmp::min(size, offset),
+            None => size
+        };
+
+        match adjusted_offset {
+            0 => None,
+            offset => Some(offset - 1)
+        }
+    }
+
+    fn get_seek_offset(&self, offset: Option < uint >) -> Option < i64 > {
+        match self.get_actual_offset(offset) {
+            Some(offset) => match (offset * MESSAGE_SIZE).to_i64() {
+                Some(seek_offset) => Some(seek_offset),
+                _ => None
+            },
+            _ => None
+        }
+    }
+
+    fn seek_and_read_line(&self, file: &mut io::IoResult < io::File >, offset: Option < uint >) -> Option < String > {
+        match self.get_seek_offset(offset) {
+            Some(seek_offset) => match file.seek(seek_offset, io::SeekSet) {
+                Ok(_) => self.read_line(file),
+                _ => None
+            },
+            _ => None
+        }
     }
 
     #[allow(unused_variables)]
