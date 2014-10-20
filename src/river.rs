@@ -1,4 +1,3 @@
-#[phase(plugin, link)] extern crate log;
 extern crate std;
 
 use std::io;
@@ -8,6 +7,7 @@ use std::str;
 const MESSAGE_SIZE: uint = 4096;
 const LINE_END: u8 = '\n' as u8;
 
+#[deriving(Encodable, Decodable)]
 /// Result of PeekCommand, when it was successful
 /// Contains message and new offset to specify to peek command
 /// for continuous peeking
