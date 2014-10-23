@@ -1,9 +1,9 @@
 extern crate http;
 extern crate iron;
 extern crate router;
-extern crate bodyparser;
 
 use std::io::net::ip::{Ipv4Addr, Port};
+use std::str;
 
 use self::router::{Router, Params};
 use self::iron::{Iron, Request, Response, IronResult};
@@ -62,10 +62,15 @@ impl Server {
     fn push(req: &mut Request) -> IronResult < Response > {
         let params = req.extensions.find::< Router, Params >().unwrap();
         let river = params.find("river").unwrap();
-        let message = req.body.as_slice();
+        let message = str::from_utf8(req.body.as_slice());
 
-        PushCommand::new().execute(river, message);
+        match message {
+            Some(message) => {
+                PushCommand::new().execute(river, message);
+                Ok(Response::with(status::Created, ""))
+            },
+            None => Ok(Response::with(status::BadRequest, "unable to parse response body as utf8"))
+        }
 
-        Ok(Response::with(status::Created, ""))
     }
 }
