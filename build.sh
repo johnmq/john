@@ -7,5 +7,4 @@ PORT=3100 cargo run &
 JOB=$!
 sleep 1
 
-cargo test
-kill $JOB
+cargo test && kill $JOB
