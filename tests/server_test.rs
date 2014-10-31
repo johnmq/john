@@ -17,12 +17,12 @@ fn get(url: String) -> (status::Status, String) {
 
     let mut response = match request.read_response() {
         Ok(response) => response,
-        Err(_) => fail!("No response")
+        Err(_) => panic!("No response")
     };
 
     let body = match response.read_to_end() {
         Ok(body) => body,
-        Err(_) => fail!("No body")
+        Err(_) => panic!("No body")
     };
 
     let parsed_body = std::str::from_utf8(body.as_slice()).expect("Response is not UTF-8");
@@ -40,12 +40,12 @@ fn post(url: String, body: String) -> (status::Status, String) {
 
     let mut response = match request.read_response() {
         Ok(response) => response,
-        Err(_) => fail!("No response")
+        Err(_) => panic!("No response")
     };
 
     let body = match response.read_to_end() {
         Ok(body) => body,
-        Err(_) => fail!("No body")
+        Err(_) => panic!("No body")
     };
 
     let parsed_body = std::str::from_utf8(body.as_slice()).expect("Response is not UTF-8");
@@ -61,7 +61,7 @@ fn test_url(path: &str) -> String {
 fn hello_route() {
     match get(test_url("/hello/world")) {
         (status::Ok, greeting) => assert_eq!("Hello, world!", greeting.as_slice()),
-        _ => fail!("Status should be status::Ok")
+        _ => panic!("Status should be status::Ok")
     }
 }
 
@@ -70,7 +70,7 @@ fn peek_on_empty_river_without_offset() {
     ClearCommand::new().execute("server_side_river");
     match get(test_url("/peek/server_side_river")) {
         (status::NotFound, _) => {},
-        _ => fail!("Status should be status::NotFound")
+        _ => panic!("Status should be status::NotFound")
     }
 }
 
@@ -87,9 +87,9 @@ fn peek_on_full_river_without_offset() {
                 assert_eq!("a message 3", message.as_slice());
                 assert_eq!(4, offset);
             },
-            _ => fail!("Unable to parse response into PeekResult")
+            _ => panic!("Unable to parse response into PeekResult")
         },
-        _ => fail!("Status should be status::Ok")
+        _ => panic!("Status should be status::Ok")
     }
 }
 
@@ -107,9 +107,9 @@ fn peek_on_full_river_with_some_offset() {
                 assert_eq!("a message 2", message.as_slice());
                 assert_eq!(3, offset);
             },
-            _ => fail!("Unable to parse response into PeekResult")
+            _ => panic!("Unable to parse response into PeekResult")
         },
-        _ => fail!("Status should be status::Ok")
+        _ => panic!("Status should be status::Ok")
     }
 }
 
@@ -123,7 +123,7 @@ fn push_on_full_river_with_some_offset() {
 
     match post(test_url("/push/server_side_river_4"), "super message".to_string()) {
         (status::Created, _) => {},
-        _ => fail!("Status should be status::Created")
+        _ => panic!("Status should be status::Created")
     }
 
     match PeekCommand::new().execute("server_side_river_4", None) {
@@ -131,6 +131,6 @@ fn push_on_full_river_with_some_offset() {
             assert_eq!("super message", message.as_slice());
             assert_eq!(6, offset);
         },
-        _ => fail!("New message should have been created")
+        _ => panic!("New message should have been created")
     }
 }

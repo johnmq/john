@@ -165,7 +165,7 @@ match result {
         assert_eq!("hello world", message.as_slice());
         assert_eq!(2, offset);
     },
-    _ => fail!("Should have been Some(PeekResult)"),
+    _ => panic!("Should have been Some(PeekResult)"),
 }
 ```
 
