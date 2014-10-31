@@ -17,7 +17,7 @@ therefore is not recommended for production usage. Missing features:
   [johnmq/raft-rs](https://github.com/johnmq/raft-rs)).
 
 Contributions are highly welcome. And by the way, I'm looking for collaborators
-to make this project production ready faster.
+to make this project production ready faster. Email me if you feel like: [waterlink000@gmail.com](mailto:waterlink000+johnmq@gmail.com)
 
 ## Usage
 
