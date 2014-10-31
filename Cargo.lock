@@ -36,7 +36,7 @@ source = "git+https://github.com/reem/rust-http-content-type.git#e87fd4cbb8314a7
 dependencies = [
  "http 0.1.0-pre (git+https://github.com/chris-morgan/rust-http.git)",
  "phf_mac 0.0.0 (git+https://github.com/sfackler/rust-phf.git)",
- "url 0.1.0 (git+https://github.com/servo/rust-url)",
+ "url 0.1.0 (git+https://github.com/servo/rust-url.git)",
 ]
 
 [[package]]
@@ -45,7 +45,7 @@ version = "0.1.0-pre"
 source = "git+https://github.com/chris-morgan/rust-http.git#5ee6c4c2d81d98be1ad16cd43cf1697de57d01a5"
 dependencies = [
  "openssl 0.0.0 (git+https://github.com/sfackler/rust-openssl.git)",
- "url 0.1.0 (git+https://github.com/servo/rust-url)",
+ "url 0.1.0 (git+https://github.com/servo/rust-url.git)",
 ]
 
 [[package]]
@@ -59,7 +59,7 @@ dependencies = [
  "plugin 0.0.0 (git+https://github.com/reem/rust-plugin.git)",
  "replace-map 0.0.1 (git+https://github.com/reem/rust-replace-map.git)",
  "typemap 0.0.0 (git+https://github.com/reem/rust-typemap.git)",
- "url 0.1.0 (git+https://github.com/servo/rust-url)",
+ "url 0.1.0 (git+https://github.com/servo/rust-url.git)",
 ]
 
 [[package]]
@@ -110,7 +110,7 @@ source = "git+https://github.com/conduit-rust/route-recognizer.rs.git#217988b4b6
 [[package]]
 name = "router"
 version = "0.1.0"
-source = "git+https://github.com/johnmq/router.git#fe5d043421a2b935aca81f39baca8d2bb421f9f9"
+source = "git+https://github.com/johnmq/router.git#5a7d02d2fc2474563b4e20650425553c01248b0c"
 dependencies = [
  "http 0.1.0-pre (git+https://github.com/chris-morgan/rust-http.git)",
  "iron 0.0.1 (git+https://github.com/iron/iron.git)",
@@ -140,7 +140,7 @@ source = "git+https://github.com/reem/rust-unsafe-any.git#75cff194795447a901c165
 [[package]]
 name = "url"
 version = "0.1.0"
-source = "git+https://github.com/servo/rust-url#9142b86a812ac5bc886f76235585557d8e002246"
+source = "git+https://github.com/servo/rust-url.git#9142b86a812ac5bc886f76235585557d8e002246"
 dependencies = [
  "encoding 0.1.0 (git+https://github.com/lifthrasiir/rust-encoding)",
 ]
