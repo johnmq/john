@@ -2,7 +2,7 @@
 #![comment = "Dead Simple Messaging Queue in Rust"]
 #![license = "MIT"]
 
-#![deny(missing_doc)]
+#![deny(missing_docs)]
 #![deny(warnings)]
 
 //! The main crate of the John Messaging Queue.
