@@ -57,9 +57,16 @@ fn test_url(path: &str) -> String {
     format!("http://localhost:3100{}", path)
 }
 
+fn leader_url(path: &str) -> String {
+    match get(test_url("/raft/leader")) {
+        (status::Ok, leader_url) => format!("http://{}{}", leader_url, path),
+        _ => panic!("Unable to fetch leader"),
+    }
+}
+
 #[test]
 fn hello_route() {
-    match get(test_url("/hello/world")) {
+    match get(leader_url("/hello/world")) {
         (status::Ok, greeting) => assert_eq!("Hello, world!", greeting.as_slice()),
         _ => panic!("Status should be status::Ok")
     }
@@ -68,7 +75,7 @@ fn hello_route() {
 #[test]
 fn peek_on_empty_river_without_offset() {
     ClearCommand::new().execute("server_side_river");
-    match get(test_url("/peek/server_side_river")) {
+    match get(leader_url("/peek/server_side_river")) {
         (status::NotFound, _) => {},
         _ => panic!("Status should be status::NotFound")
     }
@@ -81,7 +88,7 @@ fn peek_on_full_river_without_offset() {
     PushCommand::new().execute("server_side_river_2", "a message 2");
     PushCommand::new().execute("server_side_river_2", "a message 3");
 
-    match get(test_url("/peek/server_side_river_2")) {
+    match get(leader_url("/peek/server_side_river_2")) {
         (status::Ok, json) => match json::decode::< PeekResult >(json.as_slice()) {
             Ok(PeekResult { message, offset }) => {
                 assert_eq!("a message 3", message.as_slice());
@@ -101,7 +108,7 @@ fn peek_on_full_river_with_some_offset() {
     PushCommand::new().execute("server_side_river_3", "a message 3");
     PushCommand::new().execute("server_side_river_3", "a message 4");
 
-    match get(test_url("/peek/server_side_river_3/2")) {
+    match get(leader_url("/peek/server_side_river_3/2")) {
         (status::Ok, json) => match json::decode::< PeekResult >(json.as_slice()) {
             Ok(PeekResult { message, offset }) => {
                 assert_eq!("a message 2", message.as_slice());
@@ -121,7 +128,7 @@ fn push_on_full_river_with_some_offset() {
     PushCommand::new().execute("server_side_river_4", "a message 3");
     PushCommand::new().execute("server_side_river_4", "a message 4");
 
-    match post(test_url("/push/server_side_river_4"), "super message".to_string()) {
+    match post(leader_url("/push/server_side_river_4"), "super message".to_string()) {
         (status::Created, _) => {},
         _ => panic!("Status should be status::Created")
     }

@@ -1,5 +1,7 @@
 extern crate std;
 
+use std::fmt::Show;
+
 use std::io;
 use std::io::fs::PathExtensions;
 use std::str;
@@ -7,7 +9,7 @@ use std::str;
 const MESSAGE_SIZE: uint = 4096;
 const LINE_END: u8 = '\n' as u8;
 
-#[deriving(Encodable, Decodable)]
+#[deriving(Encodable, Decodable, Show, Clone, Send)]
 /// Result of PeekCommand, when it was successful
 /// Contains message and new offset to specify to peek command
 /// for continuous peeking
@@ -16,20 +18,6 @@ pub struct PeekResult {
     pub message: String,
     /// Contains next offset to be specified to read next message from river
     pub offset: uint
-}
-
-impl Clone for PeekResult {
-    fn clone(&self) -> PeekResult {
-        PeekResult {
-            message: self.message.clone(),
-            offset: self.offset.clone()
-        }
-    }
-
-    fn clone_from(&mut self, source: &PeekResult) {
-        self.message = source.message.clone();
-        self.offset = source.offset.clone();
-    }
 }
 
 pub struct River {

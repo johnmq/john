@@ -20,3 +20,6 @@ mod river;
 mod server;
 mod commands;
 
+/// Naive implementation of raft_rs exposed traits
+pub mod raft;
+
