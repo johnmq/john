@@ -44,6 +44,8 @@ fn main() {
 
     node.start(get_raft_host().as_slice(), &mut comm, log, Duration::milliseconds(election_timeout));
 
+    let endpoint = comm.fetch_endpoint();
+
     raft_rs::intercommunication::start(comm);
 
     match get_raft_introduction() {
@@ -51,5 +53,5 @@ fn main() {
         _ => (),
     }
 
-    john::Server::new(get_server_port(), node).start();
+    john::Server::new(get_server_port(), node, endpoint).start();
 }

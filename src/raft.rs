@@ -22,6 +22,16 @@ pub struct HttpIntercommunication < T: Committable + Send + Show > {
     endpoint: Option < Sender < Package < T > > >,
 }
 
+impl HttpIntercommunication < JohnCommand > {
+    /// Used to fetch endpoint Sender < Package < JohnCommand > > clone
+    pub fn fetch_endpoint(&self) -> Sender < Package < JohnCommand > > {
+        match self.endpoint {
+            Some(ref tx) => tx.clone(),
+            _ => panic!("[ERROR] HttpIntercommunication#fetch_endpoint :: Node is not registered yet")
+        }
+    }
+}
+
 impl Intercommunication < JohnCommand > for HttpIntercommunication < JohnCommand > {
     fn new() -> HttpIntercommunication < JohnCommand > {
         let (tx, rx) = channel();
@@ -53,13 +63,12 @@ impl Intercommunication < JohnCommand > for HttpIntercommunication < JohnCommand
     }
 
     fn send(&mut self, recipient: String, package: Package < JohnCommand >) {
-        println!("[FIXME, stub] Send {} to {}", package, recipient);
-        // FIXME stub. Use http client library to access specific api of other node
-
         let package_to_send = &package.clone();
 
         let url = format!("http://{}/raft/package", recipient);
         let payload = json::encode(package_to_send);
+
+        println!("[INFO] Package encoded: {}", payload);
 
         let parsed_url = Url::parse(url.as_slice()).ok().expect("Invalid url");
         let mut req: RequestWriter = RequestWriter::new(http::method::Post, parsed_url).unwrap();
@@ -75,6 +84,7 @@ impl Intercommunication < JohnCommand > for HttpIntercommunication < JohnCommand
             _ => (),
         }
 
+        println!("[INFO] Sent {} to {}", package, recipient);
     }
 
     fn is_debug(&self) -> bool {

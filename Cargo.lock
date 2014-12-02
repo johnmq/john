@@ -3,7 +3,7 @@ name = "john"
 version = "0.4.0"
 dependencies = [
  "iron 0.0.1 (git+https://github.com/iron/iron.git)",
- "raft_rs 0.0.2 (git+https://github.com/johnmq/raft-rs.git)",
+ "raft_rs 0.0.3 (git+https://github.com/johnmq/raft-rs.git)",
  "router 0.1.0 (git+https://github.com/iron/router.git)",
 ]
 
@@ -100,8 +100,8 @@ dependencies = [
 
 [[package]]
 name = "raft_rs"
-version = "0.0.2"
-source = "git+https://github.com/johnmq/raft-rs.git#f4727055f7c864558d708c95a6ab077eb126bc2f"
+version = "0.0.3"
+source = "git+https://github.com/johnmq/raft-rs.git#614558923f3f0b0c925fdfed6f5a4153112fd919"
 
 [[package]]
 name = "replace-map"

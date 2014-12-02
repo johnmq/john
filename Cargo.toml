@@ -7,7 +7,7 @@ authors = ["Alexey Fedorov <alexey.fedorov@wimdu.com>"]
 [dependencies.raft_rs]
 
 git = "https://github.com/johnmq/raft-rs.git"
-version = "0.0.2"
+version = "0.0.3"
 
 [dependencies.iron]
 
